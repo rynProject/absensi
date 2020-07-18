@@ -76,7 +76,7 @@ class App(QWidget):
                     cv2.putText(frame, name, (x, y), font, 1, color, stroke, cv2.LINE_AA)
                     cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), (2))
                     self.confirmDialog()
-                    
+
                 else:
                     color = (255, 0, 0)
                     stroke = 2
