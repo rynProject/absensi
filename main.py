@@ -75,9 +75,10 @@ class App(QWidget):
                     buttonReply = QMessageBox.information(self, 'Konfirmasi', "Anda Akan Absen Dengan Nama : "+name+" Anda Yakin?",
                                                        QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
                     if buttonReply == QMessageBox.Yes:
-                        "INSERT INTO absensi"
+                        QMessageBox.information(self, 'KSukses', "Anda Sukses Absen Dengan Nama : "+name+".",
+                                                       QMessageBox.Ok | QMessageBox.Ok)
                     else:
-                        QMessageBox.show("Absensi Dibatalkan")
+                        QMessageBox.information(self, "Absensi Dibatalkan", QMessageBox.Ok | QMessageBox.Ok)
 
                 else:
                     color = (255, 0, 0)
@@ -86,7 +87,7 @@ class App(QWidget):
                     cv2.putText(cap, "UNKNOWN", (x, y), font, 1, color, stroke, cv2.LINE_AA)
                     cv2.rectangle(cap, (x, y), (x + w, y + h), (255, 0, 0), (2))
             # title
-            cv2.imshow('Face Recognition', frame)
+            cv2.imshow('Absensi Face Recognition', frame)
 
             # jika kamera tidak mendeteksi wajah
             k = cv2.waitKey(20) & 0xff
