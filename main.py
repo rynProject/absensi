@@ -11,21 +11,22 @@ import tkinter as tk
 from tkinter import messagebox
 
 class App(QWidget):
-
+    # method pembuatan frame utama
     def __init__(self):
         super().__init__()
-        self.title = 'Face Recognition'
+        self.title = 'Absensi'
         self.left = 10
         self.top = 10
         self.width = 320
         self.height = 200
         self.initUI()
 
+    # method pembuatan User Interface
     def initUI(self):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
 
-        button = QPushButton('Start', self)
+        button = QPushButton('Absen', self)
         button1 = QPushButton('Cancel', self)
         button.move(75, 70)
         button1.move(150, 70)
@@ -33,20 +34,8 @@ class App(QWidget):
         button1.clicked.connect(QCoreApplication.instance().quit)
         self.show()
 
-    def confirmDialog(self):
-        self.setWindowTitle(self.title)
-        self.setGeometry(self.left, self.top, self.width, self.height)
-
-        buttonReply = QMessageBox.question(self, 'Konfirmasi', "Sudah Benar?",
-                                           QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
-        if buttonReply == QMessageBox.Yes:
-            print('Yes clicked.')
-        else:
-            print('No clicked.')
-
-        self.show()
-
     @pyqtSlot()
+    # method click button
     def on_click(self):
         cap = cv2.VideoCapture(0)
         face_cascade = cv2.CascadeClassifier('haarcascade/haarcascade_frontalface_default.xml')
@@ -66,6 +55,8 @@ class App(QWidget):
                 roi_gray = gray[y:y + h, x:x + w]
                 roi_color = frame[y:y + h, x:x + w]
                 id_, conf = recognizer.predict(roi_gray)
+
+                # jika tingkat kemiripan lebih dari 60% maka tentukan nama
                 if conf > 60:
                     font = cv2.QT_FONT_NORMAL
                     id = 0
@@ -75,7 +66,18 @@ class App(QWidget):
                     stroke = 2
                     cv2.putText(frame, name, (x, y), font, 1, color, stroke, cv2.LINE_AA)
                     cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), (2))
-                    self.confirmDialog()
+
+                    # Close Camera
+                    cap.release()
+                    cv2.destroyAllWindows()
+
+                    # Konfirmasi nama
+                    buttonReply = QMessageBox.information(self, 'Konfirmasi', "Anda Akan Absen Dengan Nama : "+name+" Anda Yakin?",
+                                                       QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
+                    if buttonReply == QMessageBox.Yes:
+                        "INSERT INTO absensi"
+                    else:
+                        QMessageBox.show("Absensi Dibatalkan")
 
                 else:
                     color = (255, 0, 0)
@@ -83,7 +85,10 @@ class App(QWidget):
                     font = cv2.QT_FONT_NORMAL
                     cv2.putText(cap, "UNKNOWN", (x, y), font, 1, color, stroke, cv2.LINE_AA)
                     cv2.rectangle(cap, (x, y), (x + w, y + h), (255, 0, 0), (2))
+            # title
             cv2.imshow('Face Recognition', frame)
+
+            # jika kamera tidak mendeteksi wajah
             k = cv2.waitKey(20) & 0xff
             if k == ord('q'):
                 break
