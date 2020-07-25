@@ -1,14 +1,24 @@
 import sys
 import cv2
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton
-from PyQt5.QtGui import QIcon
+from MySQLdb import connect
+from datetime import datetime
 from PyQt5.QtCore import QCoreApplication
 from PyQt5.QtCore import pyqtSlot
-from PyQt5 import QtGui
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QMessageBox
 import pickle
-import tkinter as tk
-from tkinter import messagebox
+
+# create database connection
+myconn = connect(host="localhost",
+                                 port=8080,
+                                 user="root",
+                                 passwd="",
+                                 database="facerecognition")
+
+#create time for attendance using current time
+date = datetime.utcnow()
+now = datetime.now()
+current_time = now.strftime("%H:%M:%S")
+cursor = myconn.cursor()
 
 class App(QWidget):
     # method pembuatan frame utama
@@ -71,15 +81,29 @@ class App(QWidget):
                     cap.release()
                     cv2.destroyAllWindows()
 
+                    select = "SELECT DAY(tanggal), MONTH(tanggal), YEAR(tanggal), nama FROM absen WHERE nama='%s'" % (
+                        name)
+                    nama = cursor.execute(select)
+                    result = cursor.fetchall()
+                    data = "error"
+
                     # Konfirmasi nama
                     buttonReply = QMessageBox.information(self, 'Konfirmasi', "Anda Akan Absen Dengan Nama : "+name+" Anda Yakin?",
                                                        QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
                     if buttonReply == QMessageBox.Yes:
-                        QMessageBox.information(self, 'KSukses', "Anda Sukses Absen Dengan Nama : "+name+".",
+                        for x in result:
+                            data = x
+                        if data == "error":
+                            # print("Data belum ada")
+                            insert = "INSERT INTO absen (nama, waktu_absen, tanggal) VALUES (%s, %s, %s)"
+                            val = (name, current_time, date)
+                            cursor.execute(insert, val)
+                            myconn.commit()
+                        QMessageBox.information(self, 'Sukses', "Anda Sukses Absen Dengan Nama : "+name+".",
                                                        QMessageBox.Ok | QMessageBox.Ok)
                     else:
                         QMessageBox.information(self, "Absensi Dibatalkan", QMessageBox.Ok | QMessageBox.Ok)
-
+                #jika tingkat kemiripan dibawah 60% nama = UNKNOWN(tidak dikenali)
                 else:
                     color = (255, 0, 0)
                     stroke = 2
