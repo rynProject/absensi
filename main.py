@@ -81,28 +81,19 @@ class App(QWidget):
                     cap.release()
                     cv2.destroyAllWindows()
 
-                    select = "SELECT DAY(tanggal), MONTH(tanggal), YEAR(tanggal), nama FROM absen WHERE nama='%s'" % (
-                        name)
-                    nama = cursor.execute(select)
-                    result = cursor.fetchall()
-                    data = "error"
-
                     # Konfirmasi nama
                     buttonReply = QMessageBox.information(self, 'Konfirmasi', "Anda Akan Absen Dengan Nama : "+name+" Anda Yakin?",
                                                        QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
                     if buttonReply == QMessageBox.Yes:
-                        for x in result:
-                            data = x
-                        if data == "error":
-                            # print("Data belum ada")
-                            insert = "INSERT INTO absen (nama, waktu_absen, tanggal) VALUES (%s, %s, %s)"
-                            val = (name, current_time, date)
-                            cursor.execute(insert, val)
-                            myconn.commit()
+                        insert = "INSERT INTO absen (nama, waktu_absen, tanggal) VALUES (%s, %s, %s)"
+                        val = (name, current_time, date)
+                        cursor.execute(insert, val)
+                        myconn.commit()
                         QMessageBox.information(self, 'Sukses', "Anda Sukses Absen Dengan Nama : "+name+".",
                                                        QMessageBox.Ok | QMessageBox.Ok)
                     else:
                         QMessageBox.information(self, "Absensi Dibatalkan", QMessageBox.Ok | QMessageBox.Ok)
+
                 #jika tingkat kemiripan dibawah 60% nama = UNKNOWN(tidak dikenali)
                 else:
                     color = (255, 0, 0)
