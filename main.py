@@ -1,6 +1,7 @@
 import sys
 import cv2
-from MySQLdb import connect
+import mysql.connector
+from mysql.connector import Error
 from datetime import datetime
 from PyQt5.QtCore import QCoreApplication
 from PyQt5.QtCore import pyqtSlot
@@ -8,11 +9,27 @@ from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QMessageBox
 import pickle
 
 # create database connection
-myconn = connect(host="localhost",
-                                 port=8080,
-                                 user="root",
-                                 passwd="",
-                                 database="facerecognition")
+try:
+    myconn = mysql.connector.connect(host='localhost',
+                                         port = '8080',
+                                         database='facerecognition',
+                                         user='root',
+                                         password='')
+    if myconn.is_connected():
+        db_Info = myconn.get_server_info()
+        print("Connected to MySQL Server version ", db_Info)
+        cursor = myconn.cursor()
+        cursor.execute("select database();")
+        record = cursor.fetchone()
+        print("You're connected to database: ", record)
+
+except Error as e:
+    print("Error while connecting to MySQL", e)
+finally:
+    if (myconn.is_connected()):
+        cursor.close()
+        myconn.close()
+        print("MySQL connection is closed")
 
 #create time for attendance using current time
 date = datetime.utcnow()
@@ -104,7 +121,7 @@ class App(QWidget):
             # title
             cv2.imshow('Absensi Face Recognition', frame)
 
-            # jika kamera tidak mendeteksi wajah
+            # jika kamera tidak mendeteksi wajah tutup face recognition
             k = cv2.waitKey(20) & 0xff
             if k == ord('q'):
                 break
