@@ -9,27 +9,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QMessageBox
 import pickle
 
 # create database connection
-try:
-    myconn = mysql.connector.connect(host='localhost',
-                                         port = '8080',
-                                         database='facerecognition',
-                                         user='root',
-                                         password='')
-    if myconn.is_connected():
-        db_Info = myconn.get_server_info()
-        print("Connected to MySQL Server version ", db_Info)
-        cursor = myconn.cursor()
-        cursor.execute("select database();")
-        record = cursor.fetchone()
-        print("You're connected to database: ", record)
-
-except Error as e:
-    print("Error while connecting to MySQL", e)
-finally:
-    if (myconn.is_connected()):
-        cursor.close()
-        myconn.close()
-        print("MySQL connection is closed")
+myconn = mysql.connector.connect(host="127.0.0.1", user="root", passwd="root", database="absensi")
 
 #create time for attendance using current time
 date = datetime.utcnow()
@@ -102,8 +82,8 @@ class App(QWidget):
                     buttonReply = QMessageBox.information(self, 'Konfirmasi', "Anda Akan Absen Dengan Nama : "+name+" Anda Yakin?",
                                                        QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
                     if buttonReply == QMessageBox.Yes:
-                        insert = "INSERT INTO absen (nama, waktu_absen, tanggal) VALUES (%s, %s, %s)"
-                        val = (name, current_time, date)
+                        insert = "INSERT INTO absen (nama, waktu_absen) VALUES (%s, %s, %s)"
+                        val = (name, current_time)
                         cursor.execute(insert, val)
                         myconn.commit()
                         QMessageBox.information(self, 'Sukses', "Anda Sukses Absen Dengan Nama : "+name+".",
