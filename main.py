@@ -74,22 +74,21 @@ class App(QWidget):
                     cv2.putText(frame, name, (x, y), font, 1, color, stroke, cv2.LINE_AA)
                     cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), (2))
 
-                    # Close Camera
-                    cap.release()
-                    cv2.destroyAllWindows()
+                    # MEMBUAT CONFIRMATION DIALOG
+                    msgBox = QMessageBox()
+                    msgBox.setWindowTitle("Konfirmasi")
+                    msgBox.setText("Anda akan absen dengan nama "+name+", Anda Yakin?")
+                    msgBox.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+                    bttn = msgBox.exec_()
 
-                    # Konfirmasi nama
-                    buttonReply = QMessageBox.information(self, 'Konfirmasi', "Anda Akan Absen Dengan Nama : "+name+" Anda Yakin?",
-                                                       QMessageBox.Yes | QMessageBox.No, QMessageBox.Yes)
-                    if buttonReply == QMessageBox.Yes:
-                        insert = "INSERT INTO absen (nama, waktu_absen) VALUES (%s, %s, %s)"
-                        val = (name, current_time)
+                    # JIKA BUTTON YES DI TEKAN, INPUT KE DATABASE DENGAN VALUR, NAMA WAKTU DAN TANGGAL
+                    if bttn == QMessageBox.Yes:
+                        insert = "INSERT INTO absen (nama, waktu_absen, tanggal) VALUES (%s, %s, %s)"
+                        val = (name, current_time, date)
                         cursor.execute(insert, val)
                         myconn.commit()
-                        QMessageBox.information(self, 'Sukses', "Anda Sukses Absen Dengan Nama : "+name+".",
-                                                       QMessageBox.Ok | QMessageBox.Ok)
-                    else:
-                        QMessageBox.information(self, "Absensi Dibatalkan", QMessageBox.Ok | QMessageBox.Ok)
+                    elif bttn == QMessageBox.No:
+                        print("No Clicked")
 
                 #jika tingkat kemiripan dibawah 60% nama = UNKNOWN(tidak dikenali)
                 else:
